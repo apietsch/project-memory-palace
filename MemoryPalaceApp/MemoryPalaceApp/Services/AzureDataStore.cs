@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Xamarin.Essentials;
 using MemoryPalaceApp.Models;
+using Xamarin.Forms;
 
 namespace MemoryPalaceApp.Services
 {
@@ -16,7 +17,16 @@ namespace MemoryPalaceApp.Services
 
         public AzureDataStore()
         {
-            client = new HttpClient();
+            var config = DependencyService.Resolve<IConfiguration>();
+#if DEBUG
+            var httpHandler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (o, cert, chain, errors) => true
+            };
+#else
+            var httpHandler = new HttpClientHandler();
+#endif
+            client = new HttpClient(httpHandler);
             client.BaseAddress = new Uri($"{App.AzureBackendUrl}/");
 
             items = new List<Item>();
